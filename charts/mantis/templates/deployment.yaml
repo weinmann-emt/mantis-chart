@@ -50,9 +50,19 @@ spec:
           - |
             curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
             unzip mantisbt-${VERSION}.zip
-            ls
-            chmod -R a+x mantisbt-${VERSION}
             mv mantisbt-${VERSION}/* /mantis
+        - name: {{ .Chart.Name }}-busybox
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.bbImage.repository }}:{{ .Values.bbImage.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mantis
+              mountPath: /mantis
+          env:
+            - name: VERSION
+              value: {{ .Values.mantis.version }}
+          command: ['sh', '-c', 'chown -R 33:33 /mantis && chmod 750 /mantis && echo done']
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
