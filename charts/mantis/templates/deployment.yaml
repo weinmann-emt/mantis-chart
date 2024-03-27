@@ -59,6 +59,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["sh", "-c"]
+          args:
+          - |
+              docker-php-ext-install mysqli
+              docker-php-ext-install pdo
+              docker-php-ext-install pdo_mysql
+              apache2-foreground
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
