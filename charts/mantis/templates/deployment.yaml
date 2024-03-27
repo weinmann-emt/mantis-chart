@@ -30,9 +30,6 @@ spec:
       serviceAccountName: {{ include "mantis.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      volumes:
-        - name: mantis
-          emptyDir: {}
       initContainers:
         - name: {{ .Chart.Name }}-curl
           securityContext:
@@ -91,14 +88,46 @@ spec:
           volumeMounts:
             - name: mantis
               mountPath: /var/www/html
+            {{- if ne .Values.mantis.config  "" }}
+            - name: config
+              mountPath: /var/www/html/config/config_inc.php
+              subPath: config_inc.php
+            {{- end }}
+            - name: strings
+              mountPath: /var/www/html/config/custom_strings_inc.php
+              subPath: custom_strings_inc.php
+            - name: constants
+              mountPath: /var/www/html/config/custom_constants_inc.php
+              subPath: custom_constants_inc.php
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+        - name: mantis
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ include "mantis.fullname" . }}-config
+            items:
+              - key: config_inc.php
+                path: config_inc.php
+        - name: strings
+          configMap:
+            name: {{ include "mantis.fullname" . }}-strings
+            items:
+              - key: custom_strings_inc.php
+                path: custom_strings_inc.php
+        - name: constants
+          configMap:
+            name: {{ include "mantis.fullname" . }}-constants
+            items:
+              - key: custom_constants_inc.php
+                path: custom_constants_inc.php
+
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}

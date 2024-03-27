@@ -25,6 +25,8 @@ bbImage:
 mantis:
   version: "2.26.1"
   config: ""
+  custom_strings_inc: ""
+  custom_constants_inc: ""
 
 imagePullSecrets: []
 nameOverride: ""
