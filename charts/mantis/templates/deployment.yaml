@@ -31,7 +31,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        - name: {{ .Chart.Name }}-curl
+        - name: {{ .Chart.Name }}-curl-app
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.curlImage.repository }}:{{ .Values.curlImage.tag | default "latest" }}"
@@ -48,7 +48,24 @@ spec:
             curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
             unzip mantisbt-${VERSION}.zip
             mv mantisbt-${VERSION}/* /mantis
-        - name: {{ .Chart.Name }}-busybox
+        - name: {{ .Chart.Name }}-git-addons
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.gitImage.repository }}:{{ .Values.gitImage.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mantis
+              mountPath: /mantis
+          env:
+            - name: VERSION
+              value: {{ .Values.mantis.version }}
+          command: ["sh", "-c"]
+          args:
+          - |
+            curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
+            unzip mantisbt-${VERSION}.zip
+            mv mantisbt-${VERSION}/* /mantis
+        - name: {{ .Chart.Name }}-busybox-chown
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.bbImage.repository }}:{{ .Values.bbImage.tag | default "latest" }}"

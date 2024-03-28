@@ -12,14 +12,14 @@ image:
 
 curlImage:
   repository: curlimages/curl
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
 bbImage:
   repository: busybox
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+gitImage:
+  repository: bitnami/git
   tag: "latest"
 
 mantis:
@@ -27,6 +27,7 @@ mantis:
   config: ""
   custom_strings_inc: ""
   custom_constants_inc: ""
+  addons: []
 
 imagePullSecrets: []
 nameOverride: ""
