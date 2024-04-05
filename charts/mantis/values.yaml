@@ -28,6 +28,9 @@ mantis:
   custom_strings_inc: ""
   custom_constants_inc: ""
   addons: []
+    # - url: -c http.sslVerify=false https://gitlab.hh.emt.local/wm/WMMantisValidator.git
+    #   tag: v1.0.7
+    #   name: WMMantisValidator
 
 imagePullSecrets: []
 nameOverride: ""

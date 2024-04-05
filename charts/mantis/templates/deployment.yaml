@@ -61,10 +61,10 @@ spec:
               value: {{ .Values.mantis.version }}
           command: ["sh", "-c"]
           args:
-          - |
-            curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
-            unzip mantisbt-${VERSION}.zip
-            mv mantisbt-${VERSION}/* /mantis
+            {{  range $key, $value := .Values.mantis.addons }}
+              -  git clone -b {{ $value.tag }} {{ $value.url }}  /mantis/addons/{{ $value.name }}
+            {{ end }}
+              - exit 0
         - name: {{ .Chart.Name }}-busybox-chown
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
