@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mantis.fullname" . }}-config
+  labels:
+    {{- include "mantis.labels" . | nindent 4 }}
+data:
+  config_inc.php: {{ .Values.mantis.config | quote }}
+  custom_strings_inc.php: {{ .Values.mantis.custom_strings_inc | quote }}
+  custom_constants_inc.php: {{ .Values.mantis.custom_constants_inc | quote }}

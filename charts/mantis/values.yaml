@@ -12,19 +12,25 @@ image:
 
 curlImage:
   repository: curlimages/curl
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
 bbImage:
   repository: busybox
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+gitImage:
+  repository: bitnami/git
   tag: "latest"
 
 mantis:
   version: "2.26.1"
   config: ""
+  custom_strings_inc: ""
+  custom_constants_inc: ""
+  addons: []
+    # - url: -c http.sslVerify=false https://gitlab.hh.emt.local/wm/WMMantisValidator.git
+    #   tag: v1.0.7
+    #   name: WMMantisValidator
 
 imagePullSecrets: []
 nameOverride: ""
