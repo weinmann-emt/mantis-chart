@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  mantis:
+  - apiVersion: v2
+    appVersion: 2.26.1
+    created: "2024-12-11T11:31:11.780604358Z"
+    description: A Helm chart for Kubernetes
+    digest: 574303104fd4caf0f36919accfc069ca2dc966793b752d18e2f115d1df359173
+    name: mantis
+    type: application
+    urls:
+    - https://github.com/weinmann-emt/mantis-chart/releases/download/mantis-0.2.1/mantis-0.2.1.tgz
+    version: 0.2.1
+generated: "2024-12-11T11:31:11.623697485Z"
