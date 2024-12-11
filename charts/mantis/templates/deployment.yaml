@@ -30,53 +30,6 @@ spec:
       serviceAccountName: {{ include "mantis.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      initContainers:
-        - name: {{ .Chart.Name }}-curl-app
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.curlImage.repository }}:{{ .Values.curlImage.tag | default "latest" }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          volumeMounts:
-            - name: mantis
-              mountPath: /mantis
-          env:
-            - name: VERSION
-              value: {{ .Values.mantis.version }}
-          command: ["sh", "-c"]
-          args:
-          - |
-            curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
-            unzip mantisbt-${VERSION}.zip
-            mv mantisbt-${VERSION}/* /mantis
-        - name: {{ .Chart.Name }}-git-addons
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.gitImage.repository }}:{{ .Values.gitImage.tag | default "latest" }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          volumeMounts:
-            - name: mantis
-              mountPath: /mantis
-          env:
-            - name: VERSION
-              value: {{ .Values.mantis.version }}
-          command: ["sh", "-c"]
-          args:
-            {{  range $key, $value := .Values.mantis.addons }}
-              -  git clone -b {{ $value.tag }} {{ $value.url }}  /mantis/addons/{{ $value.name }}
-            {{ end }}
-              - exit 0
-        - name: {{ .Chart.Name }}-busybox-chown
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.bbImage.repository }}:{{ .Values.bbImage.tag | default "latest" }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          volumeMounts:
-            - name: mantis
-              mountPath: /mantis
-          env:
-            - name: VERSION
-              value: {{ .Values.mantis.version }}
-          command: ['sh', '-c', 'chown -R 33:33 /mantis && chmod 750 /mantis && echo done']
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -124,7 +77,8 @@ spec:
           {{- end }}
       volumes:
         - name: mantis
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: {{ include "mantis.fullname" . }}-app
         - name: config
           configMap:
             name: {{ include "mantis.fullname" . }}-config
@@ -143,7 +97,6 @@ spec:
             items:
               - key: custom_constants_inc.php
                 path: custom_constants_inc.php
-
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

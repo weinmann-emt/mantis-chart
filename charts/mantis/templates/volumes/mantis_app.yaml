@@ -1,0 +1,14 @@
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "mantis.fullname" . }}-app
+  labels:
+    {{- include "mantis.labels" . | nindent 8 }}
+spec:
+  accessModes:
+    - "ReadOnlyMany"
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
