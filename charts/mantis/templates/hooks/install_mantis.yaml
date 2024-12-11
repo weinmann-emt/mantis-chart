@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+metadata:
+  name: {{ include "mantis.fullname" . }}
+  labels:
+    {{- include "mantis.labels" . | nindent 4 }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded, pre-delete
+spec:
+  template:
+    metadata:
+      name: {{ include "mantis.fullname" . }}
+      labels:
+        {{- include "mantis.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-curl-app
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.curlImage.repository }}:{{ .Values.curlImage.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mantis
+              mountPath: /mantis
+          env:
+            - name: VERSION
+              value: {{ .Values.mantis.version }}
+          command: ["sh", "-c"]
+          args:
+          - |
+            curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
+            unzip mantisbt-${VERSION}.zip
+            mv mantisbt-${VERSION}/* /mantis
+        - name: {{ .Chart.Name }}-git-addons
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.gitImage.repository }}:{{ .Values.gitImage.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mantis
+              mountPath: /mantis
+          env:
+            - name: VERSION
+              value: {{ .Values.mantis.version }}
+          command: ["sh", "-c"]
+          args:
+            {{  range $key, $value := .Values.mantis.addons }}
+              -  git clone -b {{ $value.tag }} {{ $value.url }}  /mantis/addons/{{ $value.name }}
+            {{ end }}
+              - exit 0
+        - name: {{ .Chart.Name }}-busybox-chown
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.bbImage.repository }}:{{ .Values.bbImage.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mantis
+              mountPath: /mantis
+          env:
+            - name: VERSION
+              value: {{ .Values.mantis.version }}
+          command: ['sh', '-c', 'chown -R 33:33 /mantis && chmod 750 /mantis && echo done']
+      volumes:
+        - name: mantis
+          persistentVolumeClaim:
+            claimName: {{ include "mantis.fullname" . }}-app

@@ -1,0 +1,17 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: release-name-mantis-app
+  labels:
+        helm.sh/chart: mantis-0.1.0
+        app.kubernetes.io/name: mantis
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadOnlyMany"
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "64M"
