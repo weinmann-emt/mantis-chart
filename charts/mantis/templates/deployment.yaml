@@ -79,9 +79,14 @@ spec:
         - name: mantis
           persistentVolumeClaim:
             claimName: {{ include "mantis.fullname" . }}-app
+
         - name: config
-          configMap:
-            name: {{ include "mantis.fullname" . }}-config
+          secret:
+            {{- if eq .Values.mantis.predefinedConfigSecret  "" }}
+            secretName: {{ include "mantis.fullname" . }}-config
+            {{ else }}
+            secretName: {{ .Values.mantis.predefinedConfigSecret }}
+            {{- end }}
             items:
               - key: config_inc.php
                 path: config_inc.php

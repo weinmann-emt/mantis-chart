@@ -23,6 +23,7 @@ gitImage:
   tag: "latest"
 
 mantis:
+  predefinedConfigSecret: ""
   version: "2.26.1"
   config: ""
   custom_strings_inc: ""
