@@ -8,8 +8,8 @@ metadata:
   annotations:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
-    "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook": pre-install, pre-upgrade
+    "helm.sh/hook-weight": "10"
     "helm.sh/hook-delete-policy": hook-succeeded, pre-delete
 spec:
   template:
@@ -23,9 +23,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        runAsUser: 0
+        runAsGroup: 0
       containers:
         - name: {{ .Chart.Name }}-curl-app
           securityContext:
@@ -41,7 +41,7 @@ spec:
           command: ["sh", "-c"]
           args:
           - |
-            curl -LO https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
+            wget --no-check-certificate https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
             unzip mantisbt-${VERSION}.zip
             mv mantisbt-${VERSION}/* /mantis
         - name: {{ .Chart.Name }}-git-addons
