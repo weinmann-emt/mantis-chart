@@ -8,7 +8,7 @@ metadata:
   annotations:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
-    "helm.sh/hook": pre-install, pre-upgrade
+    "helm.sh/hook": pre-install #, pre-upgrade
     "helm.sh/hook-weight": "10"
     "helm.sh/hook-delete-policy": hook-succeeded, pre-delete
 spec:
@@ -26,7 +26,7 @@ spec:
       securityContext:
         runAsUser: 0
         runAsGroup: 0
-      containers:
+      initContainers:
         - name: {{ .Chart.Name }}-curl-app
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -43,6 +43,7 @@ spec:
           - |
             wget --no-check-certificate https://downloads.sourceforge.net/project/mantisbt/mantis-stable/${VERSION}/mantisbt-${VERSION}.zip
             unzip mantisbt-${VERSION}.zip
+            rm -r /mantis/* || true
             mv mantisbt-${VERSION}/* /mantis
         - name: {{ .Chart.Name }}-git-addons
           securityContext:
@@ -61,6 +62,7 @@ spec:
               -  git clone -b {{ $value.tag }} {{ $value.url }}  /mantis/addons/{{ $value.name }}
             {{ end }}
               - exit 0
+      containers:
         - name: {{ .Chart.Name }}-busybox-chown
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
