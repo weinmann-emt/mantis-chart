@@ -1,11 +1,10 @@
 name: Release Charts
 
+# This is ok, as the merge will then trigger the thing
 on:
   push:
     branches:
       - main
-  release:
-    types: [published]
 
 jobs:
   release:
