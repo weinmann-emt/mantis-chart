@@ -41,7 +41,6 @@ spec:
           - |
               apt-get update
               apt-get install -y libldap2-dev libldb-dev
-              cp /var/www/html/config/config_inc2.php /var/www/html/config/config_inc.php
               ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so
               ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so
               docker-php-ext-install mysqli
@@ -53,20 +52,20 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           volumeMounts:
             - name: mantis
               mountPath: /var/www/html
             {{- if ne .Values.mantis.config  "" }}
             - name: config
-              mountPath: /var/www/html/config/config_inc2.php
+              mountPath: /var/www/html/config/config_inc.php
               subPath: config_inc.php
             {{- end }}
             - name: strings
