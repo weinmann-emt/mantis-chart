@@ -59,7 +59,7 @@ spec:
           command: ["sh", "-c"]
           args:
             {{  range $key, $value := .Values.mantis.addons }}
-              -  git clone -b {{ $value.tag }} {{ $value.url }}  /mantis/addons/{{ $value.name }}
+              -  git clone -b {{ $value.tag }} {{ $value.url }}  /mantis/plugins/{{ $value.name }}
             {{ end }}
               - exit 0
       containers:
