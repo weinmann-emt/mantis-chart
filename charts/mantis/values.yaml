@@ -8,7 +8,7 @@ image:
   repository: php
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "8.1-apache"
+  tag: "8.5-apache"
 
 curlImage:
   repository: curlimages/curl
@@ -23,11 +23,11 @@ gitImage:
   tag: "latest"
 
 mantis:
-  predefinedConfigSecret: ""
-  version: "2.26.1"
+  predefinedConfigSecret: "" # with key config_inc.php
   config: ""
   custom_strings_inc: ""
   custom_constants_inc: ""
+  companyCertSecret: "" # with key: ca-certificates.crt
   addons: []
     # - url: -c http.sslVerify=false https://gitlab.hh.emt.local/wm/WMMantisValidator.git
     #   tag: v1.0.7
