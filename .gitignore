@@ -1,4 +1,4 @@
-test_values.yaml
-values.yaml
-config_secret.yaml
-company_certs.yaml
+/test_values.yaml
+/values.yaml
+/config_secret.yaml
+/company_certs.yaml
