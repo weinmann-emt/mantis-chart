@@ -8,7 +8,7 @@ image:
   repository: php
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "8.1-apache"
+  tag: "8.5-apache"
 
 curlImage:
   repository: curlimages/curl
