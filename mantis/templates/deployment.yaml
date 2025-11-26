@@ -47,6 +47,8 @@ spec:
               docker-php-ext-install pdo
               docker-php-ext-install pdo_mysql
               docker-php-ext-install ldap
+              mkdir /etc/ldap/
+              echo "TLS_CACERT      /etc/ssl/certs/ca-certificates.crt" > /etc/ldap/ldap.conf
               apache2-foreground
           ports:
             - name: http
@@ -56,24 +58,37 @@ spec:
             httpGet:
               path: /
               port: http
+              initialDelaySeconds: 300
+              periodSeconds: 60
           readinessProbe:
             httpGet:
               path: /
               port: http
+              initialDelaySeconds: 300
+              periodSeconds: 60
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 30
+            periodSeconds: 60
           volumeMounts:
             - name: mantis
               mountPath: /var/www/html
-            {{- if ne .Values.mantis.config  "" }}
             - name: config
               mountPath: /var/www/html/config/config_inc.php
               subPath: config_inc.php
-            {{- end }}
             - name: strings
               mountPath: /var/www/html/config/custom_strings_inc.php
               subPath: custom_strings_inc.php
             - name: constants
               mountPath: /var/www/html/config/custom_constants_inc.php
               subPath: custom_constants_inc.php
+          {{- if ne .Values.mantis.companyCertSecret  "" }}
+            - name: certs
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
@@ -81,10 +96,17 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
+        {{- if ne .Values.mantis.companyCertSecret  "" }}
+        - name: certs
+          secret:
+            secretName: {{ .Values.mantis.companyCertSecret }}
+            items:
+              - key: ca-certificates.crt
+                path: ca-certificates.crt
+        {{- end }}
         - name: mantis
           persistentVolumeClaim:
             claimName: {{ include "mantis.fullname" . }}-app
-
         - name: config
           secret:
             {{- if eq .Values.mantis.predefinedConfigSecret  "" }}
