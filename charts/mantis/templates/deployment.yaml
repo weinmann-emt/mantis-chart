@@ -58,19 +58,19 @@ spec:
             httpGet:
               path: /
               port: http
-              initialDelaySeconds: 300
+              initialDelaySeconds: 60
               periodSeconds: 60
           readinessProbe:
             httpGet:
               path: /
               port: http
-              initialDelaySeconds: 300
+              initialDelaySeconds: 60
               periodSeconds: 60
           startupProbe:
             httpGet:
               path: /
               port: http
-            failureThreshold: 30
+            failureThreshold: 120
             periodSeconds: 60
           volumeMounts:
             - name: mantis
