@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+metadata:
+  name: {{ include "mantis.fullname" . }}
+  labels:
+    {{- include "mantis.labels" . | nindent 4 }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": hook-succeeded, pre-delete
+spec:
+  template:
+    metadata:
+      name: {{ include "mantis.fullname" . }}
+      labels:
+        {{- include "mantis.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+        - name: {{ .Chart.Name }}-busybox-chown
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.bbImage.repository }}:{{ .Values.bbImage.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: mantis
+              mountPath: /mantis
+          env:
+            - name: VERSION
+              value: {{ .Chart.AppVersion }}
+          command: ['sh', '-c', 'chown -R 0000:0000 /mantis/admin']
+      volumes:
+        - name: mantis
+          persistentVolumeClaim:
+            claimName: {{ include "mantis.fullname" . }}-app
